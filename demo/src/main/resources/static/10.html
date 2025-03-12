@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログインスタブ画面</title>
+    <style>
+        body {
+            font-family: 'Meiryo', 'Hiragino Kaku Gothic Pro', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section-header {
+            background-color: #4472C4;
+            color: white;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 5px 5px 0 0;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        .form-label {
+            width: 150px;
+            font-weight: bold;
+            padding-top: 7px;
+        }
+        .form-control {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 8px 15px;
+            background-color: #4472C4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #365899;
+        }
+        .logout-btn {
+            background-color: #d9534f;
+        }
+        .logout-btn:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">        
+        <!-- 1. 現在のログイン情報 -->
+        <div class="section">
+            <div class="section-header">現在のログイン情報</div>
+                       
+            <div class="form-group">
+                <div class="form-label">社員ID</div>
+                <div class="form-control" id="employee-id">XXXX</div>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-label">所属会社ID</div>
+                <div class="form-control" id="company-id">YYYY</div>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-label">所属組織</div>
+                <div class="form-control" id="organization">ZZZZ</div>
+            </div>
+        </div>
+        
+        <!-- 2. 新規ログイン実施 -->
+        <div class="section">
+            <div class="section-header">新規ログイン実施</div>
+            
+            <div class="form-group">
+                <div class="form-label">社員ID</div>
+                <input type="text" class="form-control" id="new-employee-id" placeholder="社員IDを入力">
+            </div>
+        </div>
+        
+        <!-- 3. ログイン情報更新 -->
+        <div class="section">
+            <div class="section-header">ログイン情報更新</div>
+            
+            <div class="form-group">
+                <div class="form-label"></div>
+                <div>
+                    <button class="btn" onclick="goToLearnerSearchTop()">学習者検索TOPへ</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-label"></div>
+                <div>
+                    <button class="btn" onclick="goToReviewList()">要検討リストへ</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 4. ログアウト -->
+        <div class="section">
+            <div class="section-header">ログアウト</div>
+            
+            <div class="form-group">
+                <div class="form-label"></div>
+                <button class="btn logout-btn" onclick="logout()">ログアウト</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ログイン処理
+        function performLogin() {
+            const employeeId = document.getElementById('new-employee-id').value;
+            if (!employeeId) {
+                alert('社員IDを入力してください');
+                return;
+            }
+            
+            // ダミーデータでログイン情報を更新
+            document.getElementById('current-login-info').textContent = 'ログイン済み';
+            document.getElementById('employee-id').textContent = employeeId;
+            document.getElementById('company-id').textContent = 'CTC' + Math.floor(Math.random() * 1000);
+            document.getElementById('organization').textContent = '技術開発部';
+            
+            alert('ログインしました: ' + employeeId);
+        }
+        
+        // 学習者検索TOPへ遷移
+        function goToLearnerSearchTop() {
+            // ログイン状態のチェックは省略（スタブ画面のため）
+            window.location.href = '20.html';
+        }
+        
+        // 要検討リストへ遷移
+        function goToReviewList() {
+            if (document.getElementById('employee-id').textContent === '-') {
+                alert('先にログインしてください');
+                return;
+            }
+            alert('要検討リストへ遷移します');
+            // 実際の遷移処理はここに追加
+        }
+        
+        // ログアウト処理
+        function logout() {
+            document.getElementById('current-login-info').textContent = '未ログイン';
+            document.getElementById('employee-id').textContent = '-';
+            document.getElementById('company-id').textContent = '-';
+            document.getElementById('organization').textContent = '-';
+            document.getElementById('new-employee-id').value = '';
+            
+            alert('ログアウトしました');
+        }
+    </script>
+</body>
+</html>

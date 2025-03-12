@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学習者用研修検索画面</title>
+    <style>
+        body {
+            font-family: 'Meiryo', 'Hiragino Kaku Gothic Pro', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section-header {
+            background-color: #4472C4;
+            color: white;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 5px 5px 0 0;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .form-label {
+            width: 150px;
+            font-weight: bold;
+            padding-top: 7px;
+        }
+        .form-control {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .date-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+        }
+        .btn {
+            padding: 8px 15px;
+            background-color: #4472C4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #365899;
+        }
+        .btn-clear {
+            background-color: #6c757d;
+        }
+        .btn-clear:hover {
+            background-color: #5a6268;
+        }
+        .category-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .category-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .major-category {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            width: calc(33.333% - 14px);
+            margin-right: 20px;
+        }
+        .major-category:nth-child(3n) {
+            margin-right: 0;
+        }
+        .major-category-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .major-category-letter {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: #4472C4;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .middle-categories {
+            display: block;
+            margin-top: 10px;
+        }
+        .middle-category {
+            margin: 5px 0;
+        }
+        .middle-category a {
+            color: #0066cc;
+            text-decoration: none;
+            padding-left: 32px;
+            display: block;
+        }
+        .middle-category a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .header-nav {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-nav">
+            <button class="btn" onclick="goToLoginPage()">ログイン画面へ</button>
+        </div>        
+        <!-- 1. 研修検索 -->
+        <div class="section">
+            <div class="section-header">研修検索</div>
+                        
+            <div class="form-group">
+                <div class="form-label">キーワード</div>
+                <input type="text" class="form-control" id="keyword" placeholder="キーワードを入力">
+            </div>
+            
+            <div class="form-group">
+                <div class="form-label">研修開催日</div>
+                <div class="date-range">
+                    <input type="date" class="date-input" id="date-from">
+                    <span>～</span>
+                    <input type="date" class="date-input" id="date-to">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-label"></div>
+                <div>
+                    <button class="btn" onclick="searchTraining()">検索</button>
+                    <button class="btn btn-clear" onclick="clearSearch()">クリア</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 2. 研修カテゴリ選択 -->
+        <div class="section">
+            <div class="section-header">大・中分類カテゴリ一覧</div>
+            
+            <div class="category-container" id="category-container">
+                <!-- カテゴリはJavaScriptで動的に生成されます -->
+            </div>
+        </div>
+        
+        <!-- フッターエリア -->
+        <div class="footer">
+        </div>
+    </div>
+
+    <script>
+        // カテゴリデータ（実際の環境ではAPIから取得するなど）
+        const categoryData = [
+            {
+                id: 1,
+                name: "技術研修",
+                displayOrder: 1,
+                middleCategories: [
+                    { id: 1, name: "プログラミング" },
+                    { id: 2, name: "データベース" },
+                    { id: 3, name: "ネットワーク" },
+                    { id: 4, name: "セキュリティ" }
+                ]
+            },
+            {
+                id: 2,
+                name: "ビジネススキル",
+                displayOrder: 2,
+                middleCategories: [
+                    { id: 5, name: "プレゼンテーション" },
+                    { id: 6, name: "コミュニケーション" },
+                    { id: 7, name: "リーダーシップ" }
+                ]
+            },
+            {
+                id: 3,
+                name: "資格取得",
+                displayOrder: 3,
+                middleCategories: [
+                    { id: 8, name: "基本情報技術者" },
+                    { id: 9, name: "応用情報技術者" },
+                    { id: 10, name: "ネットワークスペシャリスト" }
+                ]
+            },
+            {
+                id: 4,
+                name: "マネジメント",
+                displayOrder: 4,
+                middleCategories: [
+                    { id: 11, name: "プロジェクト管理" },
+                    { id: 12, name: "リスク管理" },
+                    { id: 13, name: "品質管理" }
+                ]
+            },
+            {
+                id: 5,
+                name: "語学",
+                displayOrder: 5,
+                middleCategories: [
+                    { id: 14, name: "英語" },
+                    { id: 15, name: "中国語" },
+                    { id: 16, name: "韓国語" }
+                ]
+            },
+            {
+                id: 6,
+                name: "新入社員向け",
+                displayOrder: 6,
+                middleCategories: [
+                    { id: 17, name: "ビジネスマナー" },
+                    { id: 18, name: "基礎技術" },
+                    { id: 19, name: "社内制度" }
+                ]
+            },
+            {
+                id: 7,
+                name: "リーダー研修",
+                displayOrder: 7,
+                middleCategories: [
+                    { id: 20, name: "チームマネジメント" },
+                    { id: 21, name: "問題解決" }
+                ]
+            },
+            {
+                id: 8,
+                name: "コンプライアンス",
+                displayOrder: 8,
+                middleCategories: [
+                    { id: 22, name: "法令遵守" },
+                    { id: 23, name: "情報セキュリティ" }
+                ]
+            },
+            {
+                id: 9,
+                name: "健康管理",
+                displayOrder: 9,
+                middleCategories: [
+                    { id: 24, name: "メンタルヘルス" },
+                    { id: 25, name: "ワークライフバランス" }
+                ]
+            }
+        ];
+
+        // ページ読み込み時にカテゴリを表示
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCategories();
+            equalizeRowHeights();
+        });
+
+        // カテゴリの表示
+        function renderCategories() {
+            const container = document.getElementById('category-container');
+            
+            // 表示順でソート
+            const sortedCategories = [...categoryData].sort((a, b) => a.displayOrder - b.displayOrder);
+            
+            // 3つごとに行を作成
+            for (let i = 0; i < sortedCategories.length; i += 3) {
+                const row = document.createElement('div');
+                row.className = 'category-row';
+                
+                // 行内の大分類（最大3つ）
+                for (let j = 0; j < 3; j++) {
+                    if (i + j < sortedCategories.length) {
+                        const category = sortedCategories[i + j];
+                        const letter = String.fromCharCode(65 + i + j); // A, B, C, ...
+                        
+                        const majorCategory = document.createElement('div');
+                        majorCategory.className = 'major-category';
+                        majorCategory.dataset.id = category.id;
+                        
+                        const titleDiv = document.createElement('div');
+                        titleDiv.className = 'major-category-title';
+                        titleDiv.onclick = function() { selectMajorCategory(category.id); };
+                        
+                        const letterSpan = document.createElement('span');
+                        letterSpan.className = 'major-category-letter';
+                        letterSpan.textContent = letter;
+                        
+                        titleDiv.appendChild(letterSpan);
+                        titleDiv.appendChild(document.createTextNode(category.name));
+                        
+                        const middleCategoriesDiv = document.createElement('div');
+                        middleCategoriesDiv.className = 'middle-categories';
+                        middleCategoriesDiv.id = `middle-categories-${category.id}`;
+                        
+                        category.middleCategories.forEach(middleCategory => {
+                            const middleCategoryDiv = document.createElement('div');
+                            middleCategoryDiv.className = 'middle-category';
+                            
+                            const link = document.createElement('a');
+                            link.href = '#';
+                            link.textContent = middleCategory.name;
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                selectCategory(category.name, middleCategory.name);
+                            };
+                            
+                            middleCategoryDiv.appendChild(link);
+                            middleCategoriesDiv.appendChild(middleCategoryDiv);
+                        });
+                        
+                        majorCategory.appendChild(titleDiv);
+                        majorCategory.appendChild(middleCategoriesDiv);
+                        row.appendChild(majorCategory);
+                    }
+                }
+                
+                container.appendChild(row);
+            }
+        }
+        
+        // 大分類選択処理
+        function selectMajorCategory(categoryId) {
+            // 大分類クリック時の処理（実際の実装はここに追加）
+            const category = categoryData.find(c => c.id === categoryId);
+            if (category) {
+                alert(`選択された大分類: ${category.name}`);
+            }
+            
+            // 行の高さを調整
+            equalizeRowHeights();
+        }
+        
+        // 同じ行内の大分類の高さを揃える
+        function equalizeRowHeights() {
+            const rows = document.querySelectorAll('.category-row');
+            
+            rows.forEach(row => {
+                const categories = row.querySelectorAll('.major-category');
+                let maxHeight = 0;
+                
+                // 最大の高さを計算
+                categories.forEach(category => {
+                    // 一時的に auto に設定して実際の高さを取得
+                    category.style.height = 'auto';
+                    const height = category.offsetHeight;
+                    maxHeight = Math.max(maxHeight, height);
+                });
+                
+                // すべての大分類に最大の高さを設定
+                categories.forEach(category => {
+                    category.style.height = `${maxHeight}px`;
+                });
+            });
+        }
+
+        // 研修検索処理
+        function searchTraining() {
+            const keyword = document.getElementById('keyword').value;
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            
+            // 検索条件のバリデーション
+            if (!keyword && !dateFrom && !dateTo) {
+                alert('検索条件を入力してください');
+                return;
+            }
+            
+            // 検索処理（実際の実装はここに追加）
+            // alert(`検索条件: キーワード=${keyword}, 期間=${dateFrom}～${dateTo}`);
+            document.location.href = "22.html";
+        }
+        
+        // 検索条件クリア
+        function clearSearch() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+        }
+        
+        // カテゴリ選択処理
+        function selectCategory(majorCategory, middleCategory) {
+            alert(`選択されたカテゴリ: ${majorCategory} > ${middleCategory}`);
+            // カテゴリ選択後の処理（実際の実装はここに追加）
+        }
+        
+        // ログイン画面へ遷移
+        function goToLoginPage() {
+            window.location.href = '10.html';
+        }
+        
+        // ウィンドウサイズ変更時に高さを再調整
+        window.addEventListener('resize', equalizeRowHeights);
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+@startuml
+actor "ユーザー" as User
+participant "Vue.js (フロントエンド)" as Frontend
+participant "TrainingDetailController" as Controller
+participant "TrainingDetailService" as Service
+participant "TrainingDetailMapper" as Mapper
+database "データベース" as DB
+
+User -> Frontend: 詳細・募集一覧画面アクセス（研修ID指定）
+Frontend -> Controller: 研修詳細リクエスト
+Controller -> Service: 研修詳細情報取得依頼
+Service -> Mapper: 研修詳細情報照会要求
+Mapper -> DB: 研修詳細情報取得SQL実行
+DB --> Mapper: 研修詳細情報返却
+Mapper --> Service: 研修詳細情報返却
+
+Service -> Mapper: 募集一覧照会要求
+Mapper -> DB: 募集一覧取得SQL実行
+DB --> Mapper: 募集一覧返却
+Mapper --> Service: 募集一覧返却
+
+Service --> Controller: 研修詳細・募集一覧情報返却
+Controller --> Frontend: 研修詳細・募集一覧のレスポンス
+Frontend --> User: 研修詳細・募集一覧表示
+
+alt 要検討リストに追加
+    User -> Frontend: 要検討リスト追加ボタン押下
+    Frontend -> Controller: 要検討リスト追加リクエスト
+    Controller -> Service: 要検討リスト追加処理依頼
+    Service -> Mapper: 要検討リスト追加要求
+    Mapper -> DB: 要検討リスト追加SQL実行
+    DB --> Mapper: 追加結果返却
+    Mapper --> Service: 追加結果返却
+    Service --> Controller: 追加結果返却
+    Controller --> Frontend: 追加結果のレスポンス
+    Frontend --> User: 追加完了メッセージ表示
+end
+@enduml
