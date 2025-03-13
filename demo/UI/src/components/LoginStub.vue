@@ -3,11 +3,22 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const newEmployeeId = ref('');
+
+const loginData = ref({
+  newEmployeeId: '',
+  employeeId: '1234567890',
+  companyId: 'COMP001',
+  organization: '開発部'
+});
 
 const navigateToSearch = () => {
   router.push('/search');
 };
+
+const navigateToLogout = () => {
+  window.sessionStorage.clear();
+  router.push('/login');
+}
 </script>
 
 <template>
@@ -18,15 +29,15 @@ const navigateToSearch = () => {
       <div class="info-grid">
         <div class="info-item">
           <span class="label">社員ID:</span>
-          <span>12345</span>
+          <span>{{ loginData.employeeId }}</span>
         </div>
         <div class="info-item">
           <span class="label">所属会社ID:</span>
-          <span>COMP001</span>
+          <span>{{ loginData.companyId }}</span>
         </div>
         <div class="info-item">
           <span class="label">所属組織:</span>
-          <span>開発部</span>
+          <span>{{ loginData.organization }}</span>
         </div>
       </div>
     </section>
@@ -36,7 +47,7 @@ const navigateToSearch = () => {
       <h2>新規ログイン実施</h2>
       <div class="input-group">
         <label>社員ID:</label>
-        <input type="text" v-model="newEmployeeId" />
+        <input type="text" v-model="loginData.newEmployeeId" />
       </div>
     </section>
 
@@ -51,7 +62,7 @@ const navigateToSearch = () => {
 
     <!-- Logout Area -->
     <section class="section">
-      <button class="danger-button">ログアウト</button>
+      <button @click="navigateToLogout" class="danger-button">Logout</button>
     </section>
   </div>
 </template>

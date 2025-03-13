@@ -1,11 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const keyword = ref('');
-const dateFrom = ref('');
-const dateTo = ref('');
+
+// Single data model containing all component data
+const searchModel = reactive({
+  form: {
+    keyword: '',
+    dateFrom: '',
+    dateTo: ''
+  },
+  categories: [
+    {
+      id: 1,
+      name: '大分類カテゴリ 1',
+      subCategories: [
+        { id: 11, name: '中分類カテゴリ 1-1' },
+        { id: 12, name: '中分類カテゴリ 1-2' },
+        { id: 13, name: '中分類カテゴリ 1-3' }
+      ]
+    },
+    {
+      id: 2,
+      name: '大分類カテゴリ 2',
+      subCategories: [
+        { id: 21, name: '中分類カテゴリ 2-1' },
+        { id: 22, name: '中分類カテゴリ 2-2' }
+      ]
+    }
+  ]
+});
 
 const navigateToLogin = () => {
   router.push('/');
@@ -16,28 +41,33 @@ const handleSearch = () => {
 };
 
 const handleClear = () => {
-  keyword.value = '';
-  dateFrom.value = '';
-  dateTo.value = '';
+  searchModel.form.keyword = '';
+  searchModel.form.dateFrom = '';
+  searchModel.form.dateTo = '';
 };
 </script>
 
 <template>
   <div class="search-top">
+    <!-- Header with Login Button -->
+    <header class="header">
+      <button @click="navigateToLogin" class="return-button">ログイン画面へ</button>
+    </header>
+    
     <!-- Training Search Area -->
     <section class="section">
       <h2>研修検索</h2>
       <div class="search-form">
         <div class="form-group">
           <label>キーワード:</label>
-          <input type="text" v-model="keyword" placeholder="キーワードを入力" />
+          <input type="text" v-model="searchModel.form.keyword" placeholder="キーワードを入力" />
         </div>
         <div class="form-group">
           <label>研修開催日:</label>
           <div class="date-range">
-            <input type="date" v-model="dateFrom" />
+            <input type="date" v-model="searchModel.form.dateFrom" />
             <span>～</span>
-            <input type="date" v-model="dateTo" />
+            <input type="date" v-model="searchModel.form.dateTo" />
           </div>
         </div>
         <div class="button-group">
@@ -51,36 +81,37 @@ const handleClear = () => {
     <section class="section">
       <h2>大・中分類カテゴリ一覧</h2>
       <div class="category-container">
-        <div class="major-category">
-          <h3>大分類カテゴリ 1</h3>
+        <div v-for="category in searchModel.categories" :key="category.id" class="major-category">
+          <h3>{{ category.name }}</h3>
           <div class="sub-categories">
-            <a href="#" class="sub-category">中分類カテゴリ 1-1</a>
-            <a href="#" class="sub-category">中分類カテゴリ 1-2</a>
-            <a href="#" class="sub-category">中分類カテゴリ 1-3</a>
-          </div>
-        </div>
-        <div class="major-category">
-          <h3>大分類カテゴリ 2</h3>
-          <div class="sub-categories">
-            <a href="#" class="sub-category">中分類カテゴリ 2-1</a>
-            <a href="#" class="sub-category">中分類カテゴリ 2-2</a>
+            <a 
+              v-for="subCategory in category.subCategories" 
+              :key="subCategory.id" 
+              href="#" 
+              class="sub-category"
+            >
+              {{ subCategory.name }}
+            </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Header/Footer Area -->
-    <footer class="footer">
-      <button @click="navigateToLogin" class="return-button">ログイン画面へ</button>
-    </footer>
   </div>
 </template>
 
 <style scoped>
 .search-top {
-  max-width: 1000px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  position: relative;
+}
+
+.header {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  z-index: 10;
 }
 
 .section {
@@ -157,10 +188,6 @@ input {
   text-decoration: underline;
 }
 
-.footer {
-  margin-top: 2rem;
-  text-align: center;
-}
 
 button {
   padding: 0.5rem 1rem;
