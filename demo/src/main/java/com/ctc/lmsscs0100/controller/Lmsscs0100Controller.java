@@ -42,6 +42,7 @@ public class Lmsscs0100Controller {
 
     @PostMapping(value="/logout", produces="application/json")
     public @ResponseBody LoginInfo logout(HttpSession session) {
-        return lmsscs0100Service.logout(session);
+        LoginInfo loginInfo =  lmsscs0100Service.logout(session);
+        return loginInfo;
     }
 }
