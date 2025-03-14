@@ -9,5 +9,13 @@ const apiClient = axios.create({
     'timeout': 30000
   }
 });
-console.log("baseURL=" + apiClient.baseURL);
+
+
+// // インターセプターを設定して、すべてのリクエストURLにプレフィックスを追加
+// apiClient.interceptors.request.use(config => {
+//   config.url = `/api${config.url}`;
+//   return config;
+// });
+
+// console.log("baseURL=" + apiClient.baseURL);
 export default apiClient;
