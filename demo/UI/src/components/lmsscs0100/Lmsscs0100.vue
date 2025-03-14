@@ -32,11 +32,11 @@
       <div class="button-group">
         <div class="form-group">
           <label class="form-label"></label>
-          <button @click="navigateToSearch" class="btn btn-secondary">学習者検索TOPへ</button>
+          <button @click="navigateToSearch" class="btn btn-primary">学習者検索TOPへ</button>
         </div>
         <div class="form-group">
           <label class="form-label"></label>
-          <button @click="navigateToReviewList" class="btn btn-secondary">要検討リストへ</button>
+          <button @click="navigateToReviewList" class="btn btn-primary">要検討リストへ</button>
         </div>
       </div>
     </div>
@@ -53,9 +53,6 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
 export default {
   data() {
     return {
@@ -69,33 +66,43 @@ export default {
   },
   methods: {
     async navigateToSearch() {
-      if (this.newEmployeeId) {
-        
-        await this.$axios.post('/lmsscs0100/navigateToSearch', { employeeId: this.newEmployeeId });
-
-        router.push('/lmsscs0200');
+      if (this.newEmployeeId) {        
+        const response = await this.$axios.post('/lmsscs0100/navigateToSearch', { employeeId: this.newEmployeeId });
+        if(!response.data || !response.data.employeeId) {
+          alert('ログイン情報が取得できませんでした。');
+        }
+        this.loginData = response.data;
       }
+      this.$router.push('/lmsscs0200');
+      // router.push('/lmsscs0200');
     },
     async navigateToReviewList() {
       if (this.newEmployeeId) {
-        await this.$axios.post('/lmsscs0100/navigateToReviewList', { employeeId: this.newEmployeeId });
-        // window.location.href = '/LMSSCS0400';
-        router.push('/lmsscs0400');
+        const response = await this.$axios.post('/lmsscs0100/navigateToReviewList', { employeeId: this.newEmployeeId });
+        if(!response.data || !response.data.employeeId) {
+          alert('ログイン情報が取得できませんでした。');
+        }
+        this.loginData = response.data;
       }
+      this.$router.push('/lmsscs0400');
     },
     async logout() {
-      await this.$axios.post('/lmsscs0100/logout');
+      const response = await this.$axios.post('/lmsscs0100/logout');
       // window.location.href = '/lmsscs0100';
-      router.push('/');
+      this.loginData = response.data;
+      this.$router.push('/');
     }
   },
   async mounted() {
-    debugger;
-    console.log("1");
     const response = await this.$axios.post('/lmsscs0100/init');
-    debugger;
-    
-    console.log("2", response.data);
+    // TODO: ログイン情報が取得できなかった場合の処理を追加
+    if(!response.data && !response.data.employeeId) {
+      response.data = {
+        employeeId: '　',
+        companyId: '　',
+        organizationId: '　'
+      };
+    }
     this.loginData = response.data;
   }
 };
@@ -145,6 +152,8 @@ export default {
   display: block;
   background:#6c757d;
   max-width: 180px;
+  text-align: left;
+  padding-left: 3px;
 }
 
 .form-input {

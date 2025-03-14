@@ -25,32 +25,34 @@ public class Lmsscs0100Service {
         return loginInfo;
     }
 
-    public void updateSessionForSearch(String employeeId, HttpSession session) {
+    public LoginInfo updateSessionForSearch(String employeeId, HttpSession session) {
+        LoginInfo loginInfo = new LoginInfo();
         if (employeeId != null && !employeeId.isEmpty()) {
             OrganizationInfo organizationInfo = lmsscs0100Mapper.getOrganizationInfoByEmployeeId(employeeId, "0");
 
             if (organizationInfo != null) {
-                LoginInfo loginInfo = new LoginInfo();
                 loginInfo.setEmployeeId(employeeId);
                 loginInfo.setCompanyId(organizationInfo.getCompanyId());
                 loginInfo.setOrganizationId(organizationInfo.getOrgId());
                 session.setAttribute("loginInfo", loginInfo);
             }
         }
+        return loginInfo;
     }
 
-    public void updateSessionForReviewList(String employeeId, HttpSession session) {
+    public LoginInfo updateSessionForReviewList(String employeeId, HttpSession session) {
+        LoginInfo loginInfo = new LoginInfo();
         if (employeeId != null && !employeeId.isEmpty()) {
             OrganizationInfo organizationInfo = lmsscs0100Mapper.getOrganizationInfoByEmployeeId(employeeId, "0");
 
             if (organizationInfo != null) {
-                LoginInfo loginInfo = new LoginInfo();
                 loginInfo.setEmployeeId(employeeId);
                 loginInfo.setCompanyId(organizationInfo.getCompanyId());
                 loginInfo.setOrganizationId(organizationInfo.getOrgId());
                 session.setAttribute("loginInfo", loginInfo);
             }
         }
+        return loginInfo;
     }
 
     public LoginInfo logout(HttpSession session) {

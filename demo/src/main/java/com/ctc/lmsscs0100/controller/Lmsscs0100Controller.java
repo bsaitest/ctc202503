@@ -29,13 +29,15 @@ public class Lmsscs0100Controller {
     }
 
     @PostMapping("/navigateToSearch")
-    public void navigateToSearch(@RequestBody LoginRequest loginRequest, HttpSession session) {
-        lmsscs0100Service.updateSessionForSearch(loginRequest.getEmployeeId(), session);
+    public @ResponseBody LoginInfo navigateToSearch(@RequestBody LoginRequest loginRequest, HttpSession session) {
+        LoginInfo loginInfo = lmsscs0100Service.updateSessionForSearch(loginRequest.getEmployeeId(), session);
+        return loginInfo;
     }
 
     @PostMapping("/navigateToReviewList")
-    public void navigateToReviewList(@RequestBody LoginRequest loginRequest, HttpSession session) {
-        lmsscs0100Service.updateSessionForReviewList(loginRequest.getEmployeeId(), session);
+    public @ResponseBody LoginInfo navigateToReviewList(@RequestBody LoginRequest loginRequest, HttpSession session) {
+        LoginInfo loginInfo = lmsscs0100Service.updateSessionForReviewList(loginRequest.getEmployeeId(), session);
+        return loginInfo;
     }
 
     @PostMapping(value="/logout", produces="application/json")
