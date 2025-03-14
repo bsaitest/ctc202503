@@ -60,9 +60,9 @@ export default {
   data() {
     return {
       loginData: {
-        employeeId: '',
-        companyId: '',
-        organizationId: ''
+        employeeId: '　',
+        companyId: '　',
+        organizationId: '　'
       },
       newEmployeeId: ''
     };
@@ -134,6 +134,9 @@ export default {
 
 .form-value {
   flex: 1;
+  display: block;
+  background:#6c757d;
+  max-width: 180px;
 }
 
 .form-input {
