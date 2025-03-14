@@ -22,7 +22,7 @@ public class Lmsscs0100Controller {
     @Autowired
     private Lmsscs0100Service lmsscs0100Service;
 
-    @PostMapping("/init")
+    @PostMapping(value="/init", produces="application/json")
     public @ResponseBody LoginInfo init(HttpSession session) {
         LoginInfo loginInfo = lmsscs0100Service.initialize(session);
         return loginInfo;
@@ -38,7 +38,7 @@ public class Lmsscs0100Controller {
         lmsscs0100Service.updateSessionForReviewList(loginRequest.getEmployeeId(), session);
     }
 
-    @PostMapping("/logout")
+    @PostMapping(value="/logout", produces="application/json")
     public @ResponseBody LoginInfo logout(HttpSession session) {
         return lmsscs0100Service.logout(session);
     }
