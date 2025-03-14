@@ -9,13 +9,14 @@ import C22 from '../components/C22.vue';
 import C10 from '../components/C10.vue';
 import C221 from '../components/C221.vue';
 import C222 from '../components/C222.vue';
+import Lmsscs0100 from '../components/lmsscs0100/Lmsscs0100.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      component: LoginStub
+      component: Lmsscs0100
     },
     {
       path: '/login',
@@ -56,6 +57,10 @@ const router = createRouter({
     {
       path: '/c222',
       component: C222
+    },
+    {
+      path: '/lmsscs0100',
+      component: Lmsscs0100
     }
   ]
 });
