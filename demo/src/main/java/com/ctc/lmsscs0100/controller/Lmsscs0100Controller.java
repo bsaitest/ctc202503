@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ctc.lmsscs0100.model.LoginInfo;
@@ -22,8 +23,9 @@ public class Lmsscs0100Controller {
     private Lmsscs0100Service lmsscs0100Service;
 
     @PostMapping("/init")
-    public LoginInfo init(HttpSession session) {
-        return lmsscs0100Service.initialize(session);
+    public @ResponseBody LoginInfo init(HttpSession session) {
+        LoginInfo loginInfo = lmsscs0100Service.initialize(session);
+        return loginInfo;
     }
 
     @PostMapping("/navigateToSearch")
@@ -37,7 +39,7 @@ public class Lmsscs0100Controller {
     }
 
     @PostMapping("/logout")
-    public LoginInfo logout(HttpSession session) {
+    public @ResponseBody LoginInfo logout(HttpSession session) {
         return lmsscs0100Service.logout(session);
     }
 }

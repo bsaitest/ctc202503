@@ -70,24 +70,32 @@ export default {
   methods: {
     async navigateToSearch() {
       if (this.newEmployeeId) {
+        
         await this.$axios.post('/lmsscs0100/navigateToSearch', { employeeId: this.newEmployeeId });
-        //   window.location.href = '/LMSSCS0200';
-        router.push('/login');
+
+        router.push('/lmsscs0200');
       }
     },
     async navigateToReviewList() {
       if (this.newEmployeeId) {
         await this.$axios.post('/lmsscs0100/navigateToReviewList', { employeeId: this.newEmployeeId });
-        window.location.href = '/LMSSCS0400';
+        // window.location.href = '/LMSSCS0400';
+        router.push('/lmsscs0400');
       }
     },
     async logout() {
       await this.$axios.post('/lmsscs0100/logout');
-      window.location.href = '/lmsscs0100';
+      // window.location.href = '/lmsscs0100';
+      router.push('/');
     }
   },
   async mounted() {
+    debugger;
+    console.log("1");
     const response = await this.$axios.post('/lmsscs0100/init');
+    debugger;
+    
+    console.log("2", response.data);
     this.loginData = response.data;
   }
 };

@@ -10,6 +10,8 @@ import C10 from '../components/C10.vue';
 import C221 from '../components/C221.vue';
 import C222 from '../components/C222.vue';
 import Lmsscs0100 from '../components/lmsscs0100/Lmsscs0100.vue';
+import Lmsscs0200 from '../components/lmsscs0200/Lmsscs0200.vue';
+import Lmsscs0220 from '../components/lmsscs0220/Lmsscs0220.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -61,6 +63,14 @@ const router = createRouter({
     {
       path: '/lmsscs0100',
       component: Lmsscs0100
+    },
+    {
+      path: '/lmsscs0200',
+      component: Lmsscs0200
+    },
+    {
+      path: '/lmsscs0220',
+      component: Lmsscs0220
     }
   ]
 });
