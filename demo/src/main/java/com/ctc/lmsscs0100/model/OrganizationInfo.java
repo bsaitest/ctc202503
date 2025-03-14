@@ -10,33 +10,8 @@ public class OrganizationInfo {
     
     /** 組織ID */
     private String orgId;
-    
-    /** 社員ID */
-    private String employeeId;
-    
-    /** 主務兼務フラグ */
-    private String mainDutyFlag;
-    
-    /**
-     * デフォルトコンストラクタ
-     */
-    public OrganizationInfo() {
-    }
-    
-    /**
-     * コンストラクタ
-     * 
-     * @param companyId 会社ID
-     * @param orgId 組織ID
-     * @param employeeId 社員ID
-     * @param mainDutyFlag 主務兼務フラグ
-     */
-    public OrganizationInfo(String companyId, String orgId, String employeeId, String mainDutyFlag) {
-        this.companyId = companyId;
-        this.orgId = orgId;
-        this.employeeId = employeeId;
-        this.mainDutyFlag = mainDutyFlag;
-    }
+ 
+  
     
     /**
      * 会社IDを取得
@@ -73,40 +48,5 @@ public class OrganizationInfo {
     public void setOrgId(String orgId) {
         this.orgId = orgId;
     }
-    
-    /**
-     * 社員IDを取得
-     * 
-     * @return 社員ID
-     */
-    public String getEmployeeId() {
-        return employeeId;
-    }
-    
-    /**
-     * 社員IDを設定
-     * 
-     * @param employeeId 社員ID
-     */
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-    
-    /**
-     * 主務兼務フラグを取得
-     * 
-     * @return 主務兼務フラグ
-     */
-    public String getMainDutyFlag() {
-        return mainDutyFlag;
-    }
-    
-    /**
-     * 主務兼務フラグを設定
-     * 
-     * @param mainDutyFlag 主務兼務フラグ
-     */
-    public void setMainDutyFlag(String mainDutyFlag) {
-        this.mainDutyFlag = mainDutyFlag;
-    }
+   
 }
