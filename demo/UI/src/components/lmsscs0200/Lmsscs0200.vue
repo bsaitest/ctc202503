@@ -5,7 +5,7 @@
       <header class="header">
         <h1>研修検索システム</h1>
         <div class="header-buttons">
-          <button class="login-button">ログイン画面へ</button>
+          <button @click="navigateToLogin" class="login-button">ログイン画面へ</button>
         </div>
       </header>
   
@@ -151,7 +151,7 @@
       search() {
         // 検索処理
         console.log('検索実行');
-        router.push('/s3');
+        this.$router.push('/lmsscs0220');
       },
       clear() {
         // フォームクリア処理
@@ -159,10 +159,10 @@
         this.dateFrom = '';
         this.dateTo = '';
       },
-      goToLogin() {
+      navigateToLogin() {
         // ログイン画面への遷移
         console.log('ログイン画面へ遷移');
-        router.push('/s1');
+        this.$router.push('/');
       }
     }
   };
@@ -171,7 +171,8 @@
   <style scoped>
   .training-search-system {
     font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
-    max-width: 1200px;
+    max-width: 1920px;
+    min-width: 768px;
     margin: 0 auto;
     padding: 20px;
   }

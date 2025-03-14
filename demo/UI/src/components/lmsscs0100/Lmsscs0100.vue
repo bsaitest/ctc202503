@@ -70,8 +70,10 @@ export default {
         const response = await this.$axios.post('/lmsscs0100/navigateToSearch', { employeeId: this.newEmployeeId });
         if(!response.data || !response.data.employeeId) {
           alert('ログイン情報が取得できませんでした。');
+          return false;
         }
         this.loginData = response.data;
+        
       }
       this.$router.push('/lmsscs0200');
       // router.push('/lmsscs0200');
@@ -81,6 +83,7 @@ export default {
         const response = await this.$axios.post('/lmsscs0100/navigateToReviewList', { employeeId: this.newEmployeeId });
         if(!response.data || !response.data.employeeId) {
           alert('ログイン情報が取得できませんでした。');
+          return false;
         }
         this.loginData = response.data;
       }
