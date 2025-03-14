@@ -1,4 +1,4 @@
-package com.ctc.demo;
+package com.ctc;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;

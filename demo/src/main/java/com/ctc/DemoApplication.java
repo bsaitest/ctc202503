@@ -1,4 +1,4 @@
-package com.ctc.demo;
+package com.ctc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
