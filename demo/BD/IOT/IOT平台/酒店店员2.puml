@@ -1,0 +1,29 @@
+@startuml 酒店店员用例图_第2组
+
+' 定义角色
+left to right direction
+actor "酒店店员" as Staff
+
+' 定义用例
+rectangle "酒店IOT管理系统" {
+  usecase "房间管理" as UC5
+  usecase "查看房间信息(设备上报的温度、天气等)" as UC6
+  usecase "房间和设备进行绑定、解绑" as UC7
+  usecase "设备管理" as UC8
+  usecase "设备类型管理" as UC9
+  usecase "查看设备接入状态" as UC10
+  usecase "查看设备上报的实时数据" as UC11
+  usecase "查看设备上报的历史数据" as UC12
+}
+
+' 建立关系
+Staff --> UC5
+Staff --> UC6
+Staff --> UC7
+Staff --> UC8
+Staff --> UC9
+Staff --> UC10
+Staff --> UC11
+Staff --> UC12
+
+@enduml

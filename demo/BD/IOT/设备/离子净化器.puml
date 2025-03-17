@@ -1,0 +1,19 @@
+@startuml 离子净化器用例图
+
+' 定义角色
+left to right direction
+actor "离子净化器" as Purifier
+
+' 定义用例
+rectangle "IOT平台" {
+  usecase "定时上报各种数据" as UC1
+  usecase "接收并处理开始指令" as UC2
+  usecase "接收并处理结束指令" as UC3
+}
+
+' 建立关系
+Purifier --> UC1
+Purifier --> UC2
+Purifier --> UC3
+
+@enduml

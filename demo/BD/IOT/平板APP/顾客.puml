@@ -1,0 +1,21 @@
+@startuml 顾客用例图
+
+' 定义角色
+left to right direction
+actor "顾客" as Customer
+
+' 定义用例
+rectangle "平板" {
+  usecase "房间相关数据查询(温度、湿度、清洁信息等)" as UC2
+  usecase "查看酒店相关信息" as UC3
+  usecase "查看天气" as UC4
+  usecase "查看附近推荐" as UC5
+}
+
+' 建立关系
+Customer --> UC2
+Customer --> UC3
+Customer --> UC4
+Customer --> UC5
+
+@enduml

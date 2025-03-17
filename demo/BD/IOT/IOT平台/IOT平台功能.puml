@@ -1,0 +1,23 @@
+@startuml IOT平台用例图
+
+' 定义角色
+left to right direction
+actor "IOT平台" as IOTPlatform
+
+' 定义用例
+rectangle "系统服务" {
+  usecase "设备连接管理服务(mqtt)" as UC1
+  usecase "设备数据上报服务(mqtt)" as UC2
+  usecase "自动任务-酒店入住信息对接(api)" as UC3
+  usecase "自动任务-离子净化器启动(api)" as UC4
+  usecase "用户访问日志记录(文件形式/无界面)" as UC5
+}
+
+' 建立关系
+IOTPlatform --> UC1
+IOTPlatform --> UC2
+IOTPlatform --> UC3
+IOTPlatform --> UC4
+IOTPlatform --> UC5
+
+@enduml

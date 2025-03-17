@@ -1,0 +1,57 @@
+@startuml 酒店IOT系统构成图
+
+' 样式设定
+skinparam component {
+  BackgroundColor<<IOT系统>> LightBlue
+  BackgroundColor<<外部系统>> LightGray
+  BackgroundColor<<设备>> LightGray
+}
+
+' 布局设定 - 使用top to bottom direction让组件垂直排列
+top to bottom direction
+
+' 系统组件
+package "酒店IOT平台" {
+  component "IOT服务器系统" as IOTSystem <<IOT系统>> {
+    component "用户管理" as UserMgmt
+    component "房间管理" as RoomMgmt
+    component "设备管理" as DeviceMgmt
+    component "设备连接管理" as ConnMgmt
+  }
+  
+  component "平板APP客户端" as TabletApp <<IOT系统>> {
+    component "房间设备状态查看" as DeviceStatus
+    component "天气信息查看" as WeatherInfo
+    component "周边推荐信息查看" as RecommendInfo
+  }
+}
+
+' 外部系统
+component "天气API服务" as WeatherAPI <<外部系统>>
+component "周边推荐信息API服务" as RecommendAPI <<外部系统>>
+component "酒店管理系统" as HotelSystem <<外部系统>>
+
+' 设备类型
+package "IOT设备" {
+  component "智能门锁(Smart Lock)" as SmartLock <<设备>>
+  component "UWB人体感应器" as UWB <<设备>>
+  component "离子净化器" as Purifier <<设备>>
+}
+
+' 系统关系
+IOTSystem -- TabletApp : "HTTP/WebSocket"
+
+' 外部系统关系
+TabletApp --> WeatherAPI : "HTTP API 调用"
+TabletApp --> RecommendAPI : "HTTP API 调用"
+IOTSystem --> HotelSystem : "HTTP API 调用"
+
+' 设备关系
+SmartLock --> IOTSystem : "MQTT"
+UWB --> IOTSystem : "MQTT"
+Purifier --> IOTSystem : "MQTT"
+IOTSystem --> SmartLock : "MQTT命令"
+IOTSystem --> UWB : "MQTT命令"
+IOTSystem --> Purifier : "MQTT命令"
+
+@enduml

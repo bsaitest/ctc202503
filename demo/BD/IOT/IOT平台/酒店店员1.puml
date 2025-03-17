@@ -1,0 +1,21 @@
+@startuml 酒店店员用例图_第1组
+
+' 定义角色
+left to right direction
+actor "酒店店员" as Staff
+
+' 定义用例
+rectangle "酒店IOT管理系统" {
+  usecase "用户login" as UC1
+  usecase "查看登录用户信息" as UC2
+  usecase "修改密码" as UC3
+  usecase "logout" as UC4
+}
+
+' 建立关系
+Staff --> UC1
+Staff --> UC2
+Staff --> UC3
+Staff --> UC4
+
+@enduml

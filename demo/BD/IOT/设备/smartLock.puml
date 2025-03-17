@@ -1,0 +1,17 @@
+@startuml 智能锁用例图
+
+' 定义角色
+left to right direction
+actor "智能锁" as SmartLock
+
+' 定义用例
+rectangle "IOT平台" {
+  usecase "定时上报各种数据" as UC1
+  usecase "接收并处理修改密码指令" as UC4
+}
+
+' 建立关系
+SmartLock --> UC1
+SmartLock --> UC4
+
+@enduml

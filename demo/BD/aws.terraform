@@ -1,0 +1,620 @@
+provider "aws" {
+  region = var.primary_region
+  alias  = "primary"
+}
+
+provider "aws" {
+  region = var.secondary_region
+  alias  = "secondary"
+}
+
+# 变量定义
+variable "primary_region" {
+  description = "AWS 主区域"
+  default     = "us-east-1"
+}
+
+variable "secondary_region" {
+  description = "AWS 次要区域"
+  default     = "us-west-2"
+}
+
+variable "vpc_cidr_primary" {
+  description = "主区域 VPC CIDR 块"
+  default     = "10.0.0.0/16"
+}
+
+variable "vpc_cidr_secondary" {
+  description = "次要区域 VPC CIDR 块"
+  default     = "10.1.0.0/16"
+}
+
+variable "availability_zones_primary" {
+  description = "主区域可用区"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+variable "availability_zones_secondary" {
+  description = "次要区域可用区"
+  type        = list(string)
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
+}
+
+variable "cluster_name" {
+  description = "EKS 集群名称"
+  default     = "my-eks-cluster"
+}
+
+variable "db_username" {
+  description = "Aurora 数据库用户名"
+  default     = "admin"
+}
+
+variable "db_password" {
+  description = "Aurora 数据库密码"
+  sensitive   = true
+}
+
+# 主区域 VPC
+module "vpc_primary" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 3.0"
+  providers = {
+    aws = aws.primary
+  }
+
+  name                 = "vpc-primary"
+  cidr                 = var.vpc_cidr_primary
+  azs                  = var.availability_zones_primary
+  private_subnets      = [for i, az in var.availability_zones_primary : cidrsubnet(var.vpc_cidr_primary, 8, i)]
+  public_subnets       = [for i, az in var.availability_zones_primary : cidrsubnet(var.vpc_cidr_primary, 8, i + 100)]
+  database_subnets     = [for i, az in var.availability_zones_primary : cidrsubnet(var.vpc_cidr_primary, 8, i + 200)]
+  
+  enable_nat_gateway   = true
+  single_nat_gateway   = false
+  enable_vpn_gateway   = false
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  
+  tags = {
+    Environment = "primary"
+  }
+}
+
+# 次要区域 VPC
+module "vpc_secondary" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 3.0"
+  providers = {
+    aws = aws.secondary
+  }
+
+  name                 = "vpc-secondary"
+  cidr                 = var.vpc_cidr_secondary
+  azs                  = var.availability_zones_secondary
+  private_subnets      = [for i, az in var.availability_zones_secondary : cidrsubnet(var.vpc_cidr_secondary, 8, i)]
+  public_subnets       = [for i, az in var.availability_zones_secondary : cidrsubnet(var.vpc_cidr_secondary, 8, i + 100)]
+  database_subnets     = [for i, az in var.availability_zones_secondary : cidrsubnet(var.vpc_cidr_secondary, 8, i + 200)]
+  
+  enable_nat_gateway   = true
+  single_nat_gateway   = false
+  enable_vpn_gateway   = false
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  
+  tags = {
+    Environment = "secondary"
+  }
+}
+
+# 主区域 Aurora 集群
+resource "aws_rds_cluster" "aurora_primary" {
+  provider                  = aws.primary
+  cluster_identifier        = "aurora-primary"
+  engine                    = "aurora-mysql"
+  engine_mode               = "provisioned"
+  engine_version            = "5.7.mysql_aurora.2.11.1"
+  database_name             = "mydb"
+  master_username           = var.db_username
+  master_password           = var.db_password
+  backup_retention_period   = 7
+  preferred_backup_window   = "03:00-04:00"
+  skip_final_snapshot       = true
+  db_subnet_group_name      = aws_db_subnet_group.primary.name
+  vpc_security_group_ids    = [aws_security_group.aurora_sg_primary.id]
+  availability_zones        = var.availability_zones_primary
+  storage_encrypted         = true
+  
+  # 启用全球数据库
+  global_cluster_identifier = aws_rds_global_cluster.global.id
+}
+
+# 创建主区域 Aurora 实例 (写入器)
+resource "aws_rds_cluster_instance" "aurora_writer_primary" {
+  provider                = aws.primary
+  count                   = 1
+  identifier              = "aurora-writer-primary"
+  cluster_identifier      = aws_rds_cluster.aurora_primary.id
+  instance_class          = "db.r5.large"
+  engine                  = "aurora-mysql"
+  engine_version          = "5.7.mysql_aurora.2.11.1"
+  db_subnet_group_name    = aws_db_subnet_group.primary.name
+  publicly_accessible     = false
+}
+
+# 创建主区域 Aurora 实例 (读取器)
+resource "aws_rds_cluster_instance" "aurora_reader_primary" {
+  provider                = aws.primary
+  count                   = 1
+  identifier              = "aurora-reader-primary"
+  cluster_identifier      = aws_rds_cluster.aurora_primary.id
+  instance_class          = "db.r5.large"
+  engine                  = "aurora-mysql"
+  engine_version          = "5.7.mysql_aurora.2.11.1"
+  db_subnet_group_name    = aws_db_subnet_group.primary.name
+  publicly_accessible     = false
+}
+
+# 次要区域 Aurora 集群
+resource "aws_rds_cluster" "aurora_secondary" {
+  provider                  = aws.secondary
+  cluster_identifier        = "aurora-secondary"
+  engine                    = "aurora-mysql"
+  engine_mode               = "provisioned"
+  engine_version            = "5.7.mysql_aurora.2.11.1"
+  # 次要集群不需要用户名和密码，它会从主集群继承
+  skip_final_snapshot       = true
+  db_subnet_group_name      = aws_db_subnet_group.secondary.name
+  vpc_security_group_ids    = [aws_security_group.aurora_sg_secondary.id]
+  availability_zones        = var.availability_zones_secondary
+  storage_encrypted         = true
+  
+  # 连接到全球数据库
+  global_cluster_identifier = aws_rds_global_cluster.global.id
+  source_region             = var.primary_region
+  
+  # 标记为只读副本
+  depends_on = [aws_rds_cluster.aurora_primary]
+}
+
+# 创建次要区域 Aurora 实例 (只读)
+resource "aws_rds_cluster_instance" "aurora_reader_secondary" {
+  provider                = aws.secondary
+  count                   = 2
+  identifier              = "aurora-reader-secondary-${count.index}"
+  cluster_identifier      = aws_rds_cluster.aurora_secondary.id
+  instance_class          = "db.r5.large"
+  engine                  = "aurora-mysql"
+  engine_version          = "5.7.mysql_aurora.2.11.1"
+  db_subnet_group_name    = aws_db_subnet_group.secondary.name
+  publicly_accessible     = false
+}
+
+# 全球 Aurora 集群
+resource "aws_rds_global_cluster" "global" {
+  global_cluster_identifier    = "global-aurora-cluster"
+  engine                       = "aurora-mysql"
+  engine_version               = "5.7.mysql_aurora.2.11.1"
+  database_name                = "mydb"
+  storage_encrypted            = true
+  deletion_protection          = false
+}
+
+# 数据库子网组
+resource "aws_db_subnet_group" "primary" {
+  provider   = aws.primary
+  name       = "aurora-subnet-group-primary"
+  subnet_ids = module.vpc_primary.database_subnets
+}
+
+resource "aws_db_subnet_group" "secondary" {
+  provider   = aws.secondary
+  name       = "aurora-subnet-group-secondary"
+  subnet_ids = module.vpc_secondary.database_subnets
+}
+
+# Aurora 安全组
+resource "aws_security_group" "aurora_sg_primary" {
+  provider    = aws.primary
+  name        = "aurora-sg-primary"
+  description = "Security group for Aurora in Primary region"
+  vpc_id      = module.vpc_primary.vpc_id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    security_groups = [aws_security_group.eks_sg_primary.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "aurora_sg_secondary" {
+  provider    = aws.secondary
+  name        = "aurora-sg-secondary"
+  description = "Security group for Aurora in Secondary region"
+  vpc_id      = module.vpc_secondary.vpc_id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    security_groups = [aws_security_group.eks_sg_secondary.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 主区域 EKS 集群
+module "eks_primary" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 18.0"
+  providers = {
+    aws = aws.primary
+  }
+
+  cluster_name    = "${var.cluster_name}-primary"
+  cluster_version = "1.24"
+  subnet_ids      = module.vpc_primary.private_subnets
+  vpc_id          = module.vpc_primary.vpc_id
+
+  # EKS Managed Node Group
+  eks_managed_node_groups = {
+    workers = {
+      desired_size = 3
+      max_size     = 5
+      min_size     = 2
+
+      instance_types = ["m5.large"]
+      capacity_type  = "ON_DEMAND"
+    }
+  }
+
+  tags = {
+    Environment = "primary"
+  }
+}
+
+# 次要区域 EKS 集群
+module "eks_secondary" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 18.0"
+  providers = {
+    aws = aws.secondary
+  }
+
+  cluster_name    = "${var.cluster_name}-secondary"
+  cluster_version = "1.24"
+  subnet_ids      = module.vpc_secondary.private_subnets
+  vpc_id          = module.vpc_secondary.vpc_id
+
+  # EKS Managed Node Group
+  eks_managed_node_groups = {
+    workers = {
+      desired_size = 3
+      max_size     = 5
+      min_size     = 2
+
+      instance_types = ["m5.large"]
+      capacity_type  = "ON_DEMAND"
+    }
+  }
+
+  tags = {
+    Environment = "secondary"
+  }
+}
+
+# EKS 安全组
+resource "aws_security_group" "eks_sg_primary" {
+  provider    = aws.primary
+  name        = "eks-sg-primary"
+  description = "Security group for EKS in Primary region"
+  vpc_id      = module.vpc_primary.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "eks_sg_secondary" {
+  provider    = aws.secondary
+  name        = "eks-sg-secondary"
+  description = "Security group for EKS in Secondary region"
+  vpc_id      = module.vpc_secondary.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 主区域 ALB
+module "alb_primary" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 6.0"
+  providers = {
+    aws = aws.primary
+  }
+
+  name               = "alb-primary"
+  load_balancer_type = "application"
+  vpc_id             = module.vpc_primary.vpc_id
+  subnets            = module.vpc_primary.public_subnets
+  security_groups    = [aws_security_group.alb_sg_primary.id]
+
+  target_groups = [
+    {
+      name_prefix      = "prim-"
+      backend_protocol = "HTTP"
+      backend_port     = 80
+      target_type      = "instance"
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/health"
+        port                = "traffic-port"
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 6
+        protocol            = "HTTP"
+        matcher             = "200-399"
+      }
+    }
+  ]
+
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0
+    }
+  ]
+
+  tags = {
+    Environment = "primary"
+  }
+}
+
+# 次要区域 ALB
+module "alb_secondary" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 6.0"
+  providers = {
+    aws = aws.secondary
+  }
+
+  name               = "alb-secondary"
+  load_balancer_type = "application"
+  vpc_id             = module.vpc_secondary.vpc_id
+  subnets            = module.vpc_secondary.public_subnets
+  security_groups    = [aws_security_group.alb_sg_secondary.id]
+
+  target_groups = [
+    {
+      name_prefix      = "sec-"
+      backend_protocol = "HTTP"
+      backend_port     = 80
+      target_type      = "instance"
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/health"
+        port                = "traffic-port"
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 6
+        protocol            = "HTTP"
+        matcher             = "200-399"
+      }
+    }
+  ]
+
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0
+    }
+  ]
+
+  tags = {
+    Environment = "secondary"
+  }
+}
+
+# ALB 安全组
+resource "aws_security_group" "alb_sg_primary" {
+  provider    = aws.primary
+  name        = "alb-sg-primary"
+  description = "Security group for ALB in Primary region"
+  vpc_id      = module.vpc_primary.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "alb_sg_secondary" {
+  provider    = aws.secondary
+  name        = "alb-sg-secondary"
+  description = "Security group for ALB in Secondary region"
+  vpc_id      = module.vpc_secondary.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Route53
+resource "aws_route53_zone" "primary" {
+  name = "example.com"
+}
+
+resource "aws_route53_record" "global" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "app.example.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_globalaccelerator_accelerator.this.dns_name
+    zone_id                = "Z2BJ6XQ5FK7U4H"  # 全球加速器的 Zone ID 是固定的
+    evaluate_target_health = true
+  }
+}
+
+# Global Accelerator
+resource "aws_globalaccelerator_accelerator" "this" {
+  name            = "app-accelerator"
+  ip_address_type = "IPV4"
+  enabled         = true
+
+  attributes {
+    flow_logs_enabled   = false
+    flow_logs_s3_bucket = null
+    flow_logs_s3_prefix = null
+  }
+}
+
+resource "aws_globalaccelerator_listener" "this" {
+  accelerator_arn = aws_globalaccelerator_accelerator.this.id
+  client_affinity = "SOURCE_IP"
+  protocol        = "TCP"
+
+  port_range {
+    from_port = 80
+    to_port   = 80
+  }
+
+  port_range {
+    from_port = 443
+    to_port   = 443
+  }
+}
+
+resource "aws_globalaccelerator_endpoint_group" "primary" {
+  listener_arn      = aws_globalaccelerator_listener.this.id
+  endpoint_group_region = var.primary_region
+
+  endpoint_configuration {
+    endpoint_id = module.alb_primary.lb_arn
+    weight      = 100
+  }
+}
+
+resource "aws_globalaccelerator_endpoint_group" "secondary" {
+  listener_arn      = aws_globalaccelerator_listener.this.id
+  endpoint_group_region = var.secondary_region
+
+  endpoint_configuration {
+    endpoint_id = module.alb_secondary.lb_arn
+    weight      = 0  # 默认流量不发送到次要区域
+  }
+}
+
+# 输出
+output "primary_vpc_id" {
+  description = "主区域 VPC ID"
+  value       = module.vpc_primary.vpc_id
+}
+
+output "secondary_vpc_id" {
+  description = "次要区域 VPC ID"
+  value       = module.vpc_secondary.vpc_id
+}
+
+output "primary_eks_cluster_endpoint" {
+  description = "主区域 EKS 终端节点"
+  value       = module.eks_primary.cluster_endpoint
+}
+
+output "secondary_eks_cluster_endpoint" {
+  description = "次要区域 EKS 终端节点"
+  value       = module.eks_secondary.cluster_endpoint
+}
+
+output "primary_db_endpoint" {
+  description = "主区域数据库端点"
+  value       = aws_rds_cluster.aurora_primary.endpoint
+}
+
+output "primary_db_reader_endpoint" {
+  description = "主区域数据库读取器端点"
+  value       = aws_rds_cluster.aurora_primary.reader_endpoint
+}
+
+output "secondary_db_endpoint" {
+  description = "次要区域数据库端点"
+  value       = aws_rds_cluster.aurora_secondary.endpoint
+}
+
+output "alb_primary_dns" {
+  description = "主区域 ALB DNS 名称"
+  value       = module.alb_primary.lb_dns_name
+}
+
+output "alb_secondary_dns" {
+  description = "次要区域 ALB DNS 名称"
+  value       = module.alb_secondary.lb_dns_name
+}
+
+output "globalaccelerator_dns" {
+  description = "Global Accelerator DNS 名称"
+  value       = aws_globalaccelerator_accelerator.this.dns_name
+}
+
+output "app_domain" {
+  description = "应用程序域名"
+  value       = "app.example.com"
+}

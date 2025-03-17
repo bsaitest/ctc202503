@@ -1,0 +1,19 @@
+@startuml 管理者用例图_第3组
+
+' 定义角色
+left to right direction
+actor "管理者" as Manager
+
+' 定义用例
+rectangle "酒店IOT管理系统" {
+  usecase "手动Smart lock设备控制" as UC14
+  usecase "手动Uwb设备控制" as UC15
+  usecase "手动离子净化器控制" as UC16
+}
+
+' 建立关系
+Manager --> UC14
+Manager --> UC15
+Manager --> UC16
+
+@enduml

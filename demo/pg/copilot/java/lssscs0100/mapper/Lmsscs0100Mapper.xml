@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ctc.lmsscs0100.mapper.Lmsscs0100Mapper">
+    <!-- 社員IDに基づいて組織情報を取得するクエリ -->
+    <select id="getOrganizationInfoByEmployeeId" resultType="com.ctc.lmsscs0100.model.OrganizationInfo">
+        SELECT 
+            unit_mstr.company_id AS companyId,
+            unit_mstr.unit_id AS orgId
+        FROM 
+            unitbelong_mstr
+        JOIN 
+            unit_mstr ON unitbelong_mstr.company_unit_id = unit_mstr.unit_mstr_id
+        JOIN 
+            emp_mstr ON unitbelong_mstr.emp_id = emp_mstr.emp_id
+        WHERE 
+            unitbelong_mstr.emp_id = #{employeeId}
+            AND unitbelong_mstr.super_unit_id = #{mainDutyFlag}
+    </select>
+</mapper>

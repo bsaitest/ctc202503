@@ -1,0 +1,23 @@
+@startuml 酒店店员用例图
+
+' 定义角色
+left to right direction
+actor "酒店店员/管理员" as Staff
+
+' 定义用例
+rectangle "平板" {
+  usecase "房间号设定(管理者)" as UC1 #yellow
+  usecase "房间相关数据查询(温度、湿度、清洁信息等)" as UC2
+  usecase "查看酒店相关信息" as UC3
+  usecase "查看天气" as UC4
+  usecase "查看附近推荐" as UC5
+}
+
+' 建立关系
+Staff --> UC1
+Staff --> UC2
+Staff --> UC3
+Staff --> UC4
+Staff --> UC5
+
+@enduml

@@ -1,0 +1,95 @@
+@startuml AWS Architecture
+
+' Define AWS Cloud
+rectangle "AWS Cloud" {
+  ' Primary Region
+  rectangle "Primary Region" {
+    ' Define VPC
+    rectangle "AWS VPC" as vpc1 {
+      component "VPC" as vpc1_icon
+      
+      ' Aurora components
+      rectangle "Aurora Writer" as aurora_writer {
+        [Aurora Writer] as aurora_writer_icon
+      }
+      
+      rectangle "Aurora Reader" as aurora_reader {
+        [Aurora Reader] as aurora_reader_icon
+      }
+      
+      ' EKS Worker Nodes
+      rectangle "EKS Worker node" as eks_worker1 {
+        [EKS Worker node] as eks_worker1_icon
+      }
+      
+      rectangle "EKS Worker node" as eks_worker2 {
+        [EKS Worker node] as eks_worker2_icon
+      }
+      
+      ' NLB
+      rectangle "NLB" as nlb1 {
+        [NLB] as nlb1_icon
+      }
+      
+      ' Routes
+      rectangle "Route53" as route53 {
+        [Route53] as route53_icon
+      }
+      
+      ' Connections within VPC
+      aurora_writer_icon -right-> eks_worker1_icon : writes
+      aurora_reader_icon -right-> eks_worker2_icon : reads
+      eks_worker1_icon -down-> nlb1_icon
+      eks_worker2_icon -down-> nlb1_icon
+    }
+  }
+  
+  ' Secondary Region
+  rectangle "Secondary Region" {
+    ' Define VPC
+    rectangle "AWS VPC" as vpc2 {
+      component "VPC" as vpc2_icon
+      
+      ' Aurora components
+      rectangle "Aurora Reader" as aurora_reader2 {
+        [Aurora Reader] as aurora_reader2_icon
+      }
+      
+      ' EKS Worker Nodes
+      rectangle "EKS Worker node" as eks_worker3 {
+        [EKS Worker node] as eks_worker3_icon
+      }
+      
+      rectangle "EKS Worker node" as eks_worker4 {
+        [EKS Worker node] as eks_worker4_icon
+      }
+      
+      ' NLB
+      rectangle "NLB" as nlb2 {
+        [NLB] as nlb2_icon
+      }
+      
+      ' Connections within VPC
+      aurora_reader2_icon -right-> eks_worker3_icon : reads
+      eks_worker3_icon -down-> nlb2_icon
+      eks_worker4_icon -down-> nlb2_icon
+    }
+  }
+  
+  ' Global Accelerator
+  rectangle "GlobalAccelerator" as ga {
+    [GlobalAccelerator] as ga_icon
+  }
+  
+  ' Connections between components
+  nlb1_icon -right-> route53_icon
+  nlb2_icon -up-> route53_icon
+  route53_icon -down-> ga_icon
+}
+
+' End users
+actor "end users" as users
+users --> route53_icon
+ga_icon -down-> users
+
+@enduml

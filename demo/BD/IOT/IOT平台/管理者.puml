@@ -1,0 +1,45 @@
+@startuml 管理者用例图
+
+' 定义角色
+left to right direction
+actor "管理者" as Manager
+
+' 定义用例
+rectangle "酒店IOT管理系统" {
+  usecase "用户login" as UC1
+  usecase "查看登录用户信息" as UC2
+  usecase "修改密码" as UC3
+  usecase "logout" as UC4
+  usecase "用户管理" as UC5
+  usecase "房间管理" as UC6
+  usecase "查看房间信息(设备上报的温度、天气等)" as UC7
+  usecase "房间和设备进行绑定、解绑" as UC8
+  usecase "设备管理" as UC9
+  usecase "设备类型管理" as UC10
+  usecase "查看设备接入状态" as UC11
+  usecase "查看设备上报的实时数据" as UC12
+  usecase "查看设备上报的历史数据" as UC13
+  usecase "手动Smart lock设备控制" as UC14
+  usecase "手动Uwb设备控制" as UC15
+  usecase "手动离子净化器控制" as UC16
+}
+
+' 建立关系
+Manager --> UC1
+Manager --> UC2
+Manager --> UC3
+Manager --> UC4
+Manager --> UC5
+Manager --> UC6
+Manager --> UC7
+Manager --> UC8
+Manager --> UC9
+Manager --> UC10
+Manager --> UC11
+Manager --> UC12
+Manager --> UC13
+Manager --> UC14
+Manager --> UC15
+Manager --> UC16
+
+@enduml

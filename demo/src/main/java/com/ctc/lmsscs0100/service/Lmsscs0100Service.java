@@ -68,7 +68,7 @@ public class Lmsscs0100Service {
         if(loginInfo != null) {
             logger.info(loginInfo.getEmployeeId() + " is logged out.");
         }
-        session.getAttribute("loginInfo");
+        session.removeAttribute("loginInfo");
         return new LoginInfo();
     }
 }

@@ -1,0 +1,19 @@
+@startuml 酒店店员用例图_第3组
+
+' 定义角色
+left to right direction
+actor "酒店店员" as Staff
+
+' 定义用例
+rectangle "酒店IOT管理系统" {
+  usecase "手动Smart lock设备控制" as UC13
+  usecase "手动Uwb设备控制" as UC14
+  usecase "手动离子净化器控制" as UC15
+}
+
+' 建立关系
+Staff --> UC13
+Staff --> UC14
+Staff --> UC15
+
+@enduml

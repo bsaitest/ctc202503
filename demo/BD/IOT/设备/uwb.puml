@@ -1,0 +1,15 @@
+@startuml UWB用例图
+
+' 定义角色
+left to right direction
+actor "UWB" as UWB
+
+' 定义用例
+rectangle "IOT平台" {
+  usecase "定时上报各种数据(是否有人)" as UC1
+}
+
+' 建立关系
+UWB --> UC1
+
+@enduml
