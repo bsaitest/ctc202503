@@ -1,0 +1,39 @@
+1.安装Jest和Vue Test Utils
+
+npm install --save-dev jest @vue/test-utils vue-jest babel-jest
+-->
+npm install --save-dev jest @vue/test-utils vue-jest babel-jest --force
+
+2.配置Jest
+在项目根目录下创建一个 jest.config.js 文件，并添加以下配置：
+
+3.编写测试文件
+在 tests/unit/ 目录下创建测试文件。例如，测试 MyComponent.vue 的文件 MyComponent.spec.js
+import { shallowMount } from '@vue/test-utils';
+import MyComponent from '@/components/MyComponent.vue';
+
+describe('MyComponent.vue', () => {
+  it('renders props.msg when passed', () => {
+    const msg = 'new message';
+    const wrapper = shallowMount(MyComponent, {
+      propsData: { msg }
+    });
+    expect(wrapper.text()).toMatch(msg);
+  });
+});
+
+
+4.运行测试
+在 package.json 文件中添加一个脚本来运行测试
+{
+  "scripts": {
+    "test:unit": "jest"
+  }
+}
+
+npm run test:unit
+
+
+5.运行测试并生成覆盖率报告
+如果你希望生成覆盖率报告，可以在运行测试时添加 --coverage 选项：
+npm run test:unit -- --coverage
