@@ -1,0 +1,110 @@
+@startuml 次期LMS業務フロー
+
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Arial
+skinparam activityBorderColor #666666
+skinparam activityBackgroundColor #EEEEEE
+skinparam activityDiamondBackgroundColor #CCCCFF
+skinparam arrowColor #666666
+
+' === アクティビティ図 ===
+|ユーザー|
+start
+:ログインスタブ画面にアクセス;
+:認証情報入力;
+
+|認証システム|
+if (認証成功?) then (yes)
+  :セッション作成;
+else (no)
+  :エラー表示;
+  stop
+endif
+
+|ユーザー|
+split
+  ->学習者用研修検索TOP;
+  |研修検索機能|
+  :権限に基づく受講可能リスト作成;
+  :検索TOP画面表示;
+  
+  split
+    ->カテゴリ検索;
+    :大分類/中分類/小分類選択;
+    :中分類紹介画面表示;
+  split again
+    ->キーワード検索;
+    :キーワード入力;
+    if (研修開催日指定?) then (はい)
+      :FROM-TO日付入力;
+      if (FROM≤TOチェック) then (OK)
+      else (NG)
+        :日付エラー表示;
+        stop
+      endif
+    endif
+  end split
+  
+  :検索一覧表示;
+  note right: 表示形式(リスト/カード)切替
+  note right: 表示件数(10件/50件)切替
+  note right: ページング機能
+
+split again
+  ->要検討リスト;
+  |要検討機能|
+  :必修リスト作成;
+  :付箋設定研修リスト取得;
+  :要検討リスト画面表示;
+end split
+
+|ユーザー|
+:研修選択;
+
+|研修詳細機能|
+:属性付加処理;
+:権限チェック;
+if (閲覧権限あり?) then (はい)
+  :研修詳細・募集一覧表示;
+else (いいえ)
+  :権限エラー表示;
+  stop
+endif
+
+|ユーザー|
+split
+  ->申込み操作;
+  |申込処理機能|
+  if (研修タイプ?) then (単体研修)
+    :単体研修申込処理;
+  else (コース型研修)
+    :コース所属研修一覧表示;
+    :研修選択(個別選択可);
+    :コース研修申込処理;
+  endif
+  
+  if (席状況?) then (空席あり)
+    :通常申込確定;
+  else (満席)
+    :キャンセル待ち警告表示;
+    if (キャンセル待ち希望?) then (はい)
+      :キャンセル待ち申込確定;
+    else (いいえ)
+      :申込キャンセル;
+    endif
+  endif
+  
+split again
+  ->付箋設定;
+  |付箋処理機能|
+  :付箋カラー選択;
+  :メモ入力;
+  :付箋情報保存;
+end split
+
+|ユーザー|
+:ログアウト;
+stop
+
+@enduml

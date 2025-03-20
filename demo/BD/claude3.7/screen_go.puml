@@ -1,0 +1,45 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam componentStyle uml2
+skinparam defaultFontName "MS Gothic"
+skinparam defaultFontSize 12
+skinparam padding 8
+skinparam shadowing false
+
+title 次期LMS画面遷移図
+
+[*] --> LMSSCS0100
+
+state "LMSSCS0100\nログインスタブ画面" as LMSSCS0100
+state "LMSSCS0200\n学習者用検索TOP画面" as LMSSCS0200
+state "LMSSCS0210\n中分類紹介画面" as LMSSCS0210
+state "LMSSCS0220\n検索&一覧画面" as LMSSCS0220
+state "LMSSCS0230\n詳細・募集一覧画面" as LMSSCS0230 {
+  state "レイアウト1\n詳細・募集一覧" as LAYOUT1
+  state "レイアウト2\nコース所属研修_詳細・募集一覧モーダル" as LAYOUT2
+  LAYOUT1 --> LAYOUT2 : 研修募集コード・タイトル・\n研修募集タイトルリンククリック
+}
+state "LMSSCS0400\n要検討リスト画面" as LMSSCS0400
+
+LMSSCS0100 --> LMSSCS0200 : 学習者検索TOPへ
+LMSSCS0100 --> LMSSCS0400 : 要検討リストへ
+LMSSCS0100 --> LMSSCS0100 : ログアウト
+
+LMSSCS0200 --> LMSSCS0220 : 検索
+LMSSCS0200 --> LMSSCS0210 : 中分類リンククリック
+LMSSCS0200 --> LMSSCS0100 : ログイン画面へ
+
+LMSSCS0210 --> LMSSCS0230 : コード・タイトルリンククリック
+LMSSCS0210 --> LMSSCS0200 : 検索TOP画面へ
+
+LMSSCS0220 --> LMSSCS0230 : コード・タイトルリンククリック
+LMSSCS0220 --> LMSSCS0200 : 検索TOP画面へ
+
+LMSSCS0230 --> LMSSCS0200 : 検索TOP画面へ
+LMSSCS0230 --> LMSSCS0210 : 中分類へ
+
+LMSSCS0400 --> LMSSCS0230 : コード・タイトルリンククリック
+LMSSCS0400 --> LMSSCS0100 : ログイン画面へ
+
+@enduml

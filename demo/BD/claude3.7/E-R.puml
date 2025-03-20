@@ -1,0 +1,245 @@
+@startuml
+
+skinparam backgroundColor white
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam handwritten false
+skinparam shadowing false
+skinparam defaultFontName "MS Gothic"
+hide circle
+hide methods
+hide stereotypes
+
+package "マスタ" {
+  entity "組織マスタ" as unit_mstr {
+    * ID
+    * 会社ID
+    * 組織ID
+    # 上位会社組織ID
+    ...
+  }
+
+  entity "社員マスタ" as emp_mstr {
+    * 社員ID
+    * 社員番号
+    ...
+  }
+
+  entity "所属マスタ" as unitbelong_mstr {
+    * ID
+    * 社員ID
+    * 会社組織ID
+    ...
+  }
+
+  entity "カテゴリマスタ" as category_mstr {
+    * カテゴリID
+    * カテゴリ名
+    # 上位カテゴリID
+    # 研修担当者グループID
+    ...
+  }
+
+  entity "会場マスタ" as hall_mstr {
+    * 会場ID
+    * 会場名
+    # 研修担当者グループID
+    ...
+  }
+
+  entity "研修会社マスタ" as host_mstr {
+    * 研修会社ID
+    * 研修会社名
+    # 研修担当者グループID
+    ...
+  }
+
+  entity "種別マスタ" as training_kbn_mstr {
+    * 種別ID
+    * 種別名
+    ...
+  }
+
+  entity "必修区分マスタ" as required_mstr {
+    * 必修区分ID
+    * 必修区分名
+    # 研修担当者グループID
+    ...
+  }
+
+  entity "研修担当者グループマスタ" as trainer_admin_group_mstr {
+    * 研修担当者グループID
+    * 研修担当者グループ名
+    ...
+  }
+}
+
+package "設定" {
+  entity "カテゴリ設定" as category_setting {
+    * ID
+    * コース・研修ID
+    * カテゴリID
+    ...
+  }
+
+  entity "付箋メモ設定" as postit_setting {
+    * ID
+    * コース・研修ID
+    * 社員ID
+    ...
+  }
+
+  entity "受講対象設定" as target_assign_setting {
+    * ID
+    * コース・研修ID
+    * 必修区分
+    * 社員ID
+    ...
+  }
+
+  entity "研修担当者グループ設定" as trainer_group_setting {
+    * ID
+    * 研修担当者グループID
+    * 社員ID
+    ...
+  }
+}
+
+package "研修" {
+  entity "コース・研修マスタ" as training_mstr {
+    * コース・研修ID
+    * コース・研修名
+    # コース・研修種別
+    # 研修会社ID
+    # 研修担当者グループID
+    ...
+  }
+
+  entity "教材マスタ" as training_material_mstr {
+    * ID
+    * コース・研修ID
+    ...
+  }
+
+  entity "アンケートシートマスタ" as questionnaire_sheet_mstr {
+    * ID
+    * コース・研修ID
+    ...
+  }
+
+  entity "募集単位" as reception_unit {
+    * ID
+    * コース・研修ID
+    * 募集単位ID
+    # 会場ID
+    ...
+  }
+
+  entity "コース所属研修募集単位" as belong_training_reception_unit {
+    * ID
+    * コース募集単位ID
+    * 研修募集単位ID
+    ...
+  }
+
+  entity "開催日程" as training_date {
+    * ID
+    * 募集単位ID
+    ...
+  }
+}
+
+package "申請・受講" {
+  entity "申請管理" as request_mgmt {
+    * ID
+    # 申請者所属ID
+    ...
+  }
+
+  entity "申請管理明細" as request_mgmt_detail {
+    * ID
+    * 申請ID
+    # コース・研修募集単位ID
+    ...
+  }
+
+  entity "承認管理" as approval_mgmt {
+    * ID
+    * 申請ID
+    # 承認者所属ID
+    ...
+  }
+
+  entity "受講管理" as attendance_mgmt {
+    * 受講ID
+    * 受講ステータス
+    ...
+  }
+
+  entity "受講管理明細" as attendance_mgmt_detail {
+    * ID
+    * 受講ID
+    # コース・研修募集単位指定ID
+    ...
+  }
+
+  entity "受講履歴" as attendance_history {
+    * ID
+    # 申請者社員ID
+    # コース・研修ID
+    # 募集単位ID
+    ...
+  }
+}
+
+' 自己参照
+unit_mstr }|--o| unit_mstr : 上位組織
+
+' マスタ-マスタの関連
+emp_mstr ||--o{ unitbelong_mstr : 社員-所属
+unit_mstr ||--o{ unitbelong_mstr : 組織-所属
+category_mstr ||--o{ category_mstr : 上位カテゴリ
+trainer_admin_group_mstr ||--o{ category_mstr : 担当グループ-カテゴリ
+trainer_admin_group_mstr ||--o{ hall_mstr : 担当グループ-会場
+trainer_admin_group_mstr ||--o{ host_mstr : 担当グループ-研修会社
+trainer_admin_group_mstr ||--o{ required_mstr : 担当グループ-必修区分
+
+' 研修関連
+training_kbn_mstr ||--o{ training_mstr : 種別-研修
+host_mstr ||--o{ training_mstr : 研修会社-研修
+trainer_admin_group_mstr ||--o{ training_mstr : 担当グループ-研修
+training_mstr ||--o{ category_setting : 研修-カテゴリ設定
+category_mstr ||--o{ category_setting : カテゴリ-設定
+training_mstr ||--o{ postit_setting : 研修-付箋
+emp_mstr ||--o{ postit_setting : 社員-付箋
+training_mstr ||--o{ target_assign_setting : 研修-受講対象
+required_mstr ||--o{ target_assign_setting : 必修区分-受講対象
+emp_mstr ||--o{ target_assign_setting : 社員-受講対象
+trainer_admin_group_mstr ||--o{ trainer_group_setting : 担当グループ-設定
+emp_mstr ||--o{ trainer_group_setting : 社員-担当グループ設定
+
+' 研修コンテンツ関連
+training_mstr ||--o{ training_material_mstr : 研修-教材
+training_mstr ||--o{ questionnaire_sheet_mstr : 研修-アンケート
+training_mstr ||--o{ reception_unit : 研修-募集単位
+hall_mstr ||--o{ reception_unit : 会場-募集単位
+reception_unit ||--o{ belong_training_reception_unit : 募集単位-コース
+reception_unit ||--o{ belong_training_reception_unit : 募集単位-研修
+reception_unit ||--o{ training_date : 募集単位-開催日程
+
+' 申請・受講関連
+unitbelong_mstr ||--o{ request_mgmt : 所属-申請
+request_mgmt ||--o{ request_mgmt_detail : 申請-明細
+reception_unit ||--o{ request_mgmt_detail : 募集単位-申請明細
+request_mgmt ||--o{ approval_mgmt : 申請-承認
+unitbelong_mstr ||--o{ approval_mgmt : 所属-承認
+request_mgmt ||--o{ attendance_mgmt : 申請-受講
+attendance_mgmt ||--o{ attendance_mgmt_detail : 受講-明細
+request_mgmt_detail ||--o{ attendance_mgmt_detail : 申請明細-受講明細
+
+' 履歴関連
+emp_mstr ||--o{ attendance_history : 社員-受講履歴
+training_mstr ||--o{ attendance_history : 研修-受講履歴 
+reception_unit ||--o{ attendance_history : 募集単位-受講履歴
+
+@enduml

@@ -1,0 +1,105 @@
+@startuml 次期LMSデータモデル
+
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Arial
+skinparam classBorderColor #666666
+skinparam classBackgroundColor #EEEEEE
+skinparam arrowColor #666666
+
+' === クラス図（データモデル） ===
+
+package "マスタデータ" {
+  class "カテゴリマスタ" as Category {
+    +category_id
+    +category_name
+    +level
+    +parent_id
+  }
+  
+  class "コース・研修マスタ" as CourseTraining {
+    +course_training_id
+    +name
+    +description
+    +is_course
+  }
+  
+  class "カテゴリ設定" as CategorySetting {
+    +category_id
+    +course_training_id
+  }
+  
+  class "募集単位" as RecruitmentUnit {
+    +recruitment_id
+    +course_training_id
+    +capacity
+    +application_start
+    +application_end
+    +mandatory
+  }
+  
+  class "開催日程" as Schedule {
+    +schedule_id
+    +recruitment_id
+    +start_datetime
+    +end_datetime
+    +location
+  }
+  
+  class "コース所属研修募集単位" as CourseMember {
+    +course_id
+    +recruitment_id
+  }
+}
+
+package "トランザクションデータ" {
+  class "申請管理" as Application {
+    +application_id
+    +user_id
+    +recruitment_id
+    +application_datetime
+    +status
+  }
+  
+  class "申請管理明細" as ApplicationDetail {
+    +application_detail_id
+    +application_id
+    +schedule_id
+  }
+  
+  class "付箋設定" as Bookmark {
+    +user_id
+    +course_training_id
+    +color
+    +memo
+  }
+}
+
+class "ユーザー" as User {
+  +user_id
+  +user_name
+  +department
+}
+
+' === リレーションシップ ===
+Category "1" -- "0..*" Category: parent
+Category "1..*" -- "0..*" CourseTraining: 関連付け
+(Category, CourseTraining) .. CategorySetting
+
+CourseTraining "1" -- "0..*" RecruitmentUnit: 募集
+CourseTraining "1" -- "0..*" Bookmark: 付箋対象
+
+CourseTraining "1" -- "0..*" CourseMember: コース
+RecruitmentUnit "1" -- "0..*" CourseMember: 所属研修
+
+RecruitmentUnit "1" -- "0..*" Schedule: 日程
+RecruitmentUnit "1" -- "0..*" Application: 申込対象
+
+Schedule "1" -- "0..*" ApplicationDetail: 選択日程
+
+User "1" -- "0..*" Application: 申込
+User "1" -- "0..*" Bookmark: 付箋設定
+
+Application "1" -- "0..*" ApplicationDetail: 明細
+
+@enduml

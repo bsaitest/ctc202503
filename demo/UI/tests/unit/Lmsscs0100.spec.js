@@ -49,7 +49,6 @@ describe('Lmsscs0100.vue', () => {
       companyId: 'c01',
       organizationId: 'org01'
     };
-    console.log("wrapper.vm.loginData:", wrapper.vm.loginData);
     expect(wrapper.vm.loginData).toEqual(mockData);
     // expect(axios.post).toHaveBeenCalledWith('/lmsscs0100/init');
   });
@@ -61,13 +60,13 @@ describe('Lmsscs0100.vue', () => {
   });
 
   it('社員IDが入力されている場合、学習者検索TOPへボタンが有効化されること', () => {
-    wrapper.setData({ employeeIdInput: 'testEmployeeId' });
+    wrapper.setData({ employeeIdInput: 'e01' });
 
     expect(wrapper.find('button.search-button').attributes('disabled')).toBeUndefined();
   });
 
   it('学習者検索TOPへボタンクリック処理が正しく実行されること', async () => {
-    wrapper.setData({ employeeIdInput: 'testEmployeeId' });
+    wrapper.setData({ employeeIdInput: 'e01' });
     axios.post.mockResolvedValue({});
 
     await wrapper.vm.navigateToSearch();
@@ -78,7 +77,7 @@ describe('Lmsscs0100.vue', () => {
   });
 
   it('要検討リストへボタンクリック処理が正しく実行されること', async () => {
-    wrapper.setData({ employeeIdInput: 'testEmployeeId' });
+    wrapper.setData({ employeeId: 'e02' });
     axios.post.mockResolvedValue({});
 
     await wrapper.vm.navigateToReviewList();

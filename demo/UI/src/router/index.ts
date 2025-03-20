@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginStub from '../components/LoginStub.vue';
+import ModernLogin from '../components/ModernLogin.vue';
 import SearchTop from '../components/SearchTop.vue';
 import S1 from '../components/S1.vue';
 import S2 from '../components/S2.vue';
@@ -23,6 +24,10 @@ const router = createRouter({
     {
       path: '/',
       component: Lmsscs0100
+    },
+    {
+      path: '/modern-login',
+      component: ModernLogin
     },
     {
       path: '/login',

@@ -1,0 +1,32 @@
+@startuml
+title ログイン処理シーケンス図
+
+actor "ユーザー" as user
+participant "画面" as screen
+database "セッションOBJ" as session
+database "所属マスタ" as dept 
+database "組織マスタ" as org 
+actor "システム" as system
+
+user -> screen : 初期表示
+screen -> session : ログイン情報取得
+note right: 初期表示処理
+
+user -> screen : [学習者検索TOPへ]ボタンクリック
+screen -> session : ログイン情報更新
+screen -> dept : 社員ID取得
+dept -> org : 会社ID・組織ID取得
+screen -> screen : LMSSCS0200起動
+note right: 学習者検索TOP画面へ遷移
+
+user -> screen : [要検討リストへ]ボタンクリック
+screen -> session : ログイン情報更新
+screen -> dept : 社員ID取得
+dept -> org : 会社ID・組織ID取得
+screen -> screen : LMSSCS0400起動
+note right: 要検討リスト画面へ遷移
+
+user -> screen : [ログアウト]ボタンクリック
+screen -> session : ログイン情報クリア
+screen -> screen : 初期画面再描画
+@enduml
