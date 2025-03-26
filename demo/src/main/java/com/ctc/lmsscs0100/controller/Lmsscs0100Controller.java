@@ -22,6 +22,7 @@ public class Lmsscs0100Controller {
     @Autowired
     private Lmsscs0100Service lmsscs0100Service;
 
+
     @PostMapping(value="/init", produces="application/json")
     public @ResponseBody LoginInfo init(HttpSession session) {
         LoginInfo loginInfo = lmsscs0100Service.initialize(session);

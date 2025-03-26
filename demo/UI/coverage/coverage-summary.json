@@ -1,0 +1,3 @@
+{"total": {"lines":{"total":51,"covered":36,"skipped":0,"pct":70.58},"statements":{"total":51,"covered":36,"skipped":0,"pct":70.58},"functions":{"total":10,"covered":6,"skipped":0,"pct":60},"branches":{"total":52,"covered":34,"skipped":0,"pct":65.38},"branchesTrue":{"total":0,"covered":0,"skipped":0,"pct":"Unknown"}}
+,"C:\\ctc\\PG\\ctc202503\\demo\\UI\\src\\components\\lmsscs0100\\Lmsscs0100.vue": {"lines":{"total":51,"covered":36,"skipped":0,"pct":70.58},"functions":{"total":10,"covered":6,"skipped":0,"pct":60},"statements":{"total":51,"covered":36,"skipped":0,"pct":70.58},"branches":{"total":52,"covered":34,"skipped":0,"pct":65.38}}
+}

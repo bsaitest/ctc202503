@@ -46,7 +46,7 @@
       <h2 class="area-title">ログアウト</h2>
         <div class="form-group">
           <label class="form-label"></label>
-          <button @click="logout" class="btn btn-danger">Logout</button>
+          <button @click="logout" class="btn btn-danger">ログアウト</button>
         </div>
       </div>
   </div>
@@ -57,9 +57,9 @@ export default {
   data() {
     return {
       loginData: {
-        employeeId: 'xxx',
-        companyId: 'yyy',
-        organizationId: 'zzz'
+        employeeId: '　',
+        companyId: '　',
+        organizationId: '　'
       },
       newEmployeeId: ''
     };
@@ -99,14 +99,13 @@ export default {
   async mounted() {
     const response = await this.$axios.post('/lmsscs0100/init');
     // TODO: ログイン情報が取得できなかった場合の処理を追加
-    if(!response.data || !response.data.employeeId) {
+    if(!response.data && !response.data.employeeId) {
       response.data = {
-        employeeId: 'xxx',
-        companyId: 'yyy',
-        organizationId: 'zzz'
+        employeeId: '　',
+        companyId: '　',
+        organizationId: '　'
       };
     }
-    console.log(response.data);
     this.loginData = response.data;
   }
 };
